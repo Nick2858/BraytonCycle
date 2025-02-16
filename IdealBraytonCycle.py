@@ -121,9 +121,11 @@ class Brayton:
         self.eff = -self.net_work/self.comb_heat
         print(self.turb_temp)
         print(self.mass_flow, self.eff, self.net_work, self.comp_work, self.turb_work, self.comb_heat)
+        print(self.net_work)
 
 
-A = Brayton(in_vel=10, in_temp = 280, in_pres = 101325, in_area= 0.5, in_area_ratio= 1, comp_pres_ratio= 40, fuel_flow= 90, turb_pres_ratio= 1/100, noz_area_ratio=1/1)
+A = Brayton(in_vel=300, in_temp = 280, in_pres = 101325, in_area= 0.5, in_area_ratio= 1, comp_pres_ratio= 30, fuel_flow= 100, turb_pres_ratio= 1/60, noz_area_ratio=1/1)
+
 
 A.inletOutput()
 A.compression()
