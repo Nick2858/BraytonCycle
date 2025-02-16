@@ -98,6 +98,16 @@ class Brayton:
 
         self.turb_work = sol[0] * self.outlet_flow
         self.turb_temp = sol[1]
+
+
+        #find max turbine pressure ratio
+        w, P2 = symbols("w, P2")
+        h1 = 1/3000 * self.comb_temp ** 3 + 287/10000 * self.comb_temp ** 2 + 24394/25 * self.comb_temp
+        energy = sp.Eq(w, 1/3000 * self.in_temp ** 3 + 287/10000 * self.in_temp ** 2 + 24394/25 * self.in_temp - h1)
+        isentropic = sp.Eq(self.in_temp/self.comb_temp, (P2/ self.comp_pres)**(self.R/(0.0001*((self.in_temp + self.comb_temp)/2)**2 + 0.0574 * ((self.in_temp + self.comb_temp)/2) + 975.76  )))
+        sol = nsolve([energy, isentropic], [w,P2], [1, 1], prec = 10)
+
+        print(sol)
         
 
     def nozzle(self):
