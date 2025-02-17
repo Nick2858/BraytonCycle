@@ -47,7 +47,7 @@ class Brayton:
         massflowrate = sp.Eq(self.in_pres*self.in_vel/self.in_temp, P2*V2*self.in_area_ratio/T2)
         isentropic = sp.Eq(T2/self.in_temp, (P2/self.in_pres)**(self.R/(0.0001*((T2 + self.in_temp)/2)**2 + 0.0574 * ((T2 + self.in_temp)/2) + 975.76  )))
         energy = sp.Eq(0, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1 + (V2 ** 2 - self.in_vel**2)/2)
-        sol = nsolve([massflowrate,isentropic, energy], [V2,P2,T2] , [self.in_vel*self.in_area_ratio, self.in_pres, self.in_temp], prec = 4)
+        sol = nsolve([massflowrate,isentropic, energy], [V2,P2,T2] , [self.in_vel*self.in_area_ratio, self.in_pres, self.in_temp], prec = 10)
         
         self.in_vel2 = float(sol[0])
         self.in_pres2 = float(sol[1])
@@ -62,7 +62,7 @@ class Brayton:
         h1 = 1/3000 * self.in_temp2 ** 3 + 287/10000 * self.in_temp2 ** 2 + 24394/25 * self.in_temp2
         energy = sp.Eq(w, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1)
         isentropic = sp.Eq(T2/self.in_temp2, (self.comp_pres_ratio)**(self.R/(0.0001*((T2 + self.in_temp2)/2)**2 + 0.0574 * ((T2 + self.in_temp2)/2) + 975.76  )))
-        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 4)
+        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 10)
 
         self.comp_work = sol[0] * self.mass_flow
         self.comp_temp = sol[1]
@@ -81,7 +81,7 @@ class Brayton:
         T2,V2 = symbols("T2, V2")
         Q = sp.Eq(self.outlet_flow * (1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1 + (V2**2-self.in_vel2**2)/2), 7901740 * self.fuel_flow / 0.17034 )
         massflow = sp.Eq(V2/T2, self.in_vel2/self.comp_temp )
-        sol = nsolve([Q,massflow], [T2, V2], [self.comp_temp + 1000, self.in_vel2], prec = 4)
+        sol = nsolve([Q,massflow], [T2, V2], [self.comp_temp + 1000, self.in_vel2], prec = 10)
         
         self.comb_temp = sol[0]
         self.comb_heat = 7901740 * self.fuel_flow / 0.17034 
@@ -97,7 +97,7 @@ class Brayton:
         h1 = 1/3000 * self.comb_temp ** 3 + 287/10000 * self.comb_temp ** 2 + 24394/25 * self.comb_temp
         energy = sp.Eq(w, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1)
         isentropic = sp.Eq(T2/self.comb_temp, (self.turb_pres_ratio)**(self.R/(0.0001*((T2 + self.comb_temp)/2)**2 + 0.0574 * ((T2 + self.comb_temp)/2) + 975.76  )))
-        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 4)
+        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 10)
 
         self.turb_work = sol[0] * self.outlet_flow
         self.turb_temp = sol[1]
@@ -108,7 +108,7 @@ class Brayton:
         h1 = 1/3000 * self.comb_temp ** 3 + 287/10000 * self.comb_temp ** 2 + 24394/25 * self.comb_temp
         energy = sp.Eq(w, 1/3000 * self.in_temp ** 3 + 287/10000 * self.in_temp ** 2 + 24394/25 * self.in_temp - h1)
         isentropic = sp.Eq(self.in_temp/self.comb_temp, (P2/ self.comp_pres)**(self.R/(0.0001*((self.in_temp + self.comb_temp)/2)**2 + 0.0574 * ((self.in_temp + self.comb_temp)/2) + 975.76  )))
-        sol = nsolve([energy, isentropic], [w,P2], [1, 1], prec = 4)
+        sol = nsolve([energy, isentropic], [w,P2], [1, 1], prec = 10)
         
 
     def nozzle(self):
@@ -118,7 +118,7 @@ class Brayton:
         h1 = 1/3000 * self.turb_temp ** 3 + 287/10000 * self.turb_temp ** 2 + 24394/25 * self.turb_temp
         massflowrate = sp.Eq(self.turb_pres2*self.noz_area_ratio*self.in_vel2/self.turb_temp, self.in_pres*V2/T2)
         energy = sp.Eq(0, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1 + (V2 ** 2 - self.comb_exit_vel**2)/2)
-        sol = nsolve([massflowrate, energy], [V2,T2] , [self.comb_exit_vel/self.noz_area_ratio, self.in_temp], prec = 4)
+        sol = nsolve([massflowrate, energy], [V2,T2] , [self.comb_exit_vel/self.noz_area_ratio, self.in_temp], prec = 10)
         
         self.noz_vel2 = float(sol[0])
         self.noz_temp2 = float(sol[1])
@@ -191,7 +191,6 @@ class Brayton:
 
         self.table()
 
-
-A = Brayton(in_vel=10.0, in_temp = 293.0, in_pres = 101325.0, in_area= 0.7853981633974483, in_area_ratio= 1.0, comp_pres_ratio= 30.0, fuel_flow= 100, turb_pres_ratio= 1/60, noz_area_ratio=1/1)
-
-A.work()
+if __name__ == "__main__":
+    A = Brayton(in_vel=10.0, in_temp = 293.0, in_pres = 101325.0, in_area= 0.7853981633974483, in_area_ratio= 1.0, comp_pres_ratio= 30.0, fuel_flow= 100, turb_pres_ratio= 1/60, noz_area_ratio=1/1)
+    A.work()
