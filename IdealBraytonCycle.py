@@ -47,7 +47,7 @@ class Brayton:
         massflowrate = sp.Eq(self.in_pres*self.in_vel/self.in_temp, P2*V2*self.in_area_ratio/T2)
         isentropic = sp.Eq(T2/self.in_temp, (P2/self.in_pres)**(self.R/(0.0001*((T2 + self.in_temp)/2)**2 + 0.0574 * ((T2 + self.in_temp)/2) + 975.76  )))
         energy = sp.Eq(0, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1 + (V2 ** 2 - self.in_vel**2)/2)
-        sol = nsolve([massflowrate,isentropic, energy], [V2,P2,T2] , [self.in_vel*self.in_area_ratio, self.in_pres, self.in_temp], prec = 5)
+        sol = nsolve([massflowrate,isentropic, energy], [V2,P2,T2] , [self.in_vel*self.in_area_ratio, self.in_pres, self.in_temp], prec = 4)
         
         self.in_vel2 = float(sol[0])
         self.in_pres2 = float(sol[1])
@@ -62,7 +62,7 @@ class Brayton:
         h1 = 1/3000 * self.in_temp2 ** 3 + 287/10000 * self.in_temp2 ** 2 + 24394/25 * self.in_temp2
         energy = sp.Eq(w, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1)
         isentropic = sp.Eq(T2/self.in_temp2, (self.comp_pres_ratio)**(self.R/(0.0001*((T2 + self.in_temp2)/2)**2 + 0.0574 * ((T2 + self.in_temp2)/2) + 975.76  )))
-        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 10)
+        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 4)
 
         self.comp_work = sol[0] * self.mass_flow
         self.comp_temp = sol[1]
@@ -81,7 +81,7 @@ class Brayton:
         T2,V2 = symbols("T2, V2")
         Q = sp.Eq(self.outlet_flow * (1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1 + (V2**2-self.in_vel2**2)/2), 7901740 * self.fuel_flow / 0.17034 )
         massflow = sp.Eq(V2/T2, self.in_vel2/self.comp_temp )
-        sol = nsolve([Q,massflow], [T2, V2], [self.comp_temp + 1000, self.in_vel2], prec = 10)
+        sol = nsolve([Q,massflow], [T2, V2], [self.comp_temp + 1000, self.in_vel2], prec = 4)
         
         self.comb_temp = sol[0]
         self.comb_heat = 7901740 * self.fuel_flow / 0.17034 
@@ -97,7 +97,7 @@ class Brayton:
         h1 = 1/3000 * self.comb_temp ** 3 + 287/10000 * self.comb_temp ** 2 + 24394/25 * self.comb_temp
         energy = sp.Eq(w, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1)
         isentropic = sp.Eq(T2/self.comb_temp, (self.turb_pres_ratio)**(self.R/(0.0001*((T2 + self.comb_temp)/2)**2 + 0.0574 * ((T2 + self.comb_temp)/2) + 975.76  )))
-        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 10)
+        sol = nsolve([energy, isentropic], [w,T2], [1, 1], prec = 4)
 
         self.turb_work = sol[0] * self.outlet_flow
         self.turb_temp = sol[1]
@@ -108,7 +108,7 @@ class Brayton:
         h1 = 1/3000 * self.comb_temp ** 3 + 287/10000 * self.comb_temp ** 2 + 24394/25 * self.comb_temp
         energy = sp.Eq(w, 1/3000 * self.in_temp ** 3 + 287/10000 * self.in_temp ** 2 + 24394/25 * self.in_temp - h1)
         isentropic = sp.Eq(self.in_temp/self.comb_temp, (P2/ self.comp_pres)**(self.R/(0.0001*((self.in_temp + self.comb_temp)/2)**2 + 0.0574 * ((self.in_temp + self.comb_temp)/2) + 975.76  )))
-        sol = nsolve([energy, isentropic], [w,P2], [1, 1], prec = 10)
+        sol = nsolve([energy, isentropic], [w,P2], [1, 1], prec = 4)
         
 
     def nozzle(self):
@@ -118,7 +118,7 @@ class Brayton:
         h1 = 1/3000 * self.turb_temp ** 3 + 287/10000 * self.turb_temp ** 2 + 24394/25 * self.turb_temp
         massflowrate = sp.Eq(self.turb_pres2*self.noz_area_ratio*self.in_vel2/self.turb_temp, self.in_pres*V2/T2)
         energy = sp.Eq(0, 1/3000 * T2 ** 3 + 287/10000 * T2 ** 2 + 24394/25 * T2 - h1 + (V2 ** 2 - self.comb_exit_vel**2)/2)
-        sol = nsolve([massflowrate, energy], [V2,T2] , [self.comb_exit_vel/self.noz_area_ratio, self.in_temp], prec = 10)
+        sol = nsolve([massflowrate, energy], [V2,T2] , [self.comb_exit_vel/self.noz_area_ratio, self.in_temp], prec = 4)
         
         self.noz_vel2 = float(sol[0])
         self.noz_temp2 = float(sol[1])
@@ -127,14 +127,14 @@ class Brayton:
 
     def table(self):
         self.dictionary = {
-            "Environment":{
+            "----------------Environment Properties----------------":{
                 "Air Velocity [m/s]": self.in_vel,
                 "Ambient Temperature [°C]": round(self.in_temp -273),
                 "Ambient Pressure [kPa]": round(self.in_pres/1000,2),
                 "Air Gas Constant [kJ/kgK]": 0.287,
 
             },
-            "Intake/Diffuser":{
+            "----------------Intake/Diffuser----------------":{
                 "Diameter [m]": round(math.sqrt(self.in_area*4/math.pi),2),
                 "Area Ratio (1:x)": self.in_area_ratio,
                 "Exit Velocity [m/s]": round(self.in_vel2,2),
@@ -142,13 +142,13 @@ class Brayton:
                 "Exit Temperature [°C]": round(self.in_temp2 - 273),
                 "Mass Flow Rate [kg/s]": "{:.2e}".format(self.mass_flow)
             },
-            "Compressor":{
-                "Pressure Ratio (x:1)": round(self.comp_pres_ratio),
+            "----------------Compressor----------------":{
+                "Pressure Ratio (1:x)": round(self.comp_pres_ratio),
                 "Exit Pressure [kPa]": round(self.comp_pres/1000, 2),
                 "Exit Temperature [°C]": round(self.comp_temp - 273),
                 "Power Required [W]":  "{:.2e}".format(self.comp_work)
             },
-            "Combustor":{
+            "----------------Combustor----------------":{
                 "Air - Fuel Ratio (x:1)": round(self.mass_flow/self.fuel_flow), 
                 "Fuel Mass Flow Rate [kg/s]": "{:.2e}".format(self.fuel_flow),
                 "Dodecane ΔHcomb [kJ/kg]": round(7901.740 / 0.17034),
@@ -158,13 +158,13 @@ class Brayton:
                 "Exhaust Mass Flow Rate [kg/s]": "{:.2e}".format(self.outlet_flow),
                 "CO2 Emissions [kg/s]": "{:.2e}".format(self.emissions),
             },
-            "Turbine":{
+            "----------------Turbine----------------":{
                 "Pressure Ratio (1:x)": round(1/self.turb_pres_ratio),
                 "Exit Pressure [kPa]": round(self.turb_pres2/1000, 2),
                 "Exit Temperature [°C]": round(self.turb_temp - 273),
                 "Power Generated [W]": "{:.2e}".format(-self.turb_work)
             },
-            "Outlet/Nozzle":{
+            "----------------Outlet/Nozzle----------------":{
                 "Area Ratio (x:1)": round(self.noz_area_ratio),
                 "Outlet Area [m²]": "{:.2e}".format(self.noz_exit_area),
                 "Exit Pressure [kPa]": round(self.in_pres/1000,2),
@@ -172,13 +172,12 @@ class Brayton:
                 "Exit Velocity [m/s]": round(self.noz_vel2,2),
                 "Thrust [N]": "{:.2e}".format(self.thrust),
             },
-            "Power/Efficiency":{
+            "----------------Power/Efficiency----------------":{
                 "Net Power [W]": "{:.2e}".format(- self.net_work),
                 "Thermal Efficiency [%]":  round(self.eff * 100)
             }
         }
 
-        print(self.dictionary)
 
     def work(self):
         self.inletOutput()
