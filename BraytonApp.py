@@ -9,7 +9,12 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from PyQt5.QtWidgets import QPushButton
+from IdealBraytonCycle import Brayton
+import math
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QSlider, QLCDNumber,QAbstractItemView
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QPalette
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -22,9 +27,9 @@ class Ui_MainWindow(object):
         in_diam = 0.5
         in_area_ratio = 1
         comp_pres_ratio = 30
-        fuel_flow= 100
-        turb_pres_ratio= 60
-        noz_area_ratio = 1
+        fuel_flow= 50
+        turb_pres_ratio= 5
+        noz_area_ratio = 2
 
 
         MainWindow.setObjectName("MainWindow")
@@ -32,8 +37,15 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         
+        self.pushButton = QPushButton(self.centralwidget)
+        self.pushButton.setText("Calculate")
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton.setGeometry(QtCore.QRect(40, 460, 70, 30))
+        self.pushButton.clicked.connect(self.pushed)
+
+
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 791, 421))
+        self.tabWidget.setGeometry(QtCore.QRect(5, 5, 790, 450))
         self.tabWidget.setTabBarAutoHide(True)
         self.tabWidget.setObjectName("tabWidget")
         
@@ -41,123 +53,165 @@ class Ui_MainWindow(object):
         self.Inlet.setObjectName("Inlet")
         
         self.inletVelocity = QtWidgets.QLabel(self.Inlet)
-        self.inletVelocity.setGeometry(QtCore.QRect(40, 70, 141, 16))
+        self.inletVelocity.setGeometry(QtCore.QRect(40, 70, 140, 20))
         self.inletVelocity.setObjectName("inletVelocity")
         
         self.velocityValue = QtWidgets.QLineEdit(self.Inlet)
-        self.velocityValue.setGeometry(QtCore.QRect(220, 70, 121, 20))
+        self.velocityValue.setGeometry(QtCore.QRect(220, 70, 140, 20))
         self.velocityValue.setObjectName("velocityValue")
         self.velocityValue.setText(str(in_vel))
         
         self.ambientTemp = QtWidgets.QLabel(self.Inlet)
-        self.ambientTemp.setGeometry(QtCore.QRect(40, 130, 131, 16))
+        self.ambientTemp.setGeometry(QtCore.QRect(40, 160, 140, 20))
         self.ambientTemp.setObjectName("ambientTemp")
         
         self.tempValue = QtWidgets.QLineEdit(self.Inlet)
-        self.tempValue.setGeometry(QtCore.QRect(220, 130, 121, 20))
+        self.tempValue.setGeometry(QtCore.QRect(220, 160, 140, 20))
         self.tempValue.setObjectName("tempValue")
         self.tempValue.setText(str(in_temp))
 
         self.ambientPres = QtWidgets.QLabel(self.Inlet)
-        self.ambientPres.setGeometry(QtCore.QRect(40, 190, 111, 16))
+        self.ambientPres.setGeometry(QtCore.QRect(40, 340, 140, 20))
         self.ambientPres.setObjectName("ambientPres")
         
         self.presValue = QtWidgets.QLineEdit(self.Inlet)
-        self.presValue.setGeometry(QtCore.QRect(220, 190, 121, 20))
+        self.presValue.setGeometry(QtCore.QRect(220, 340, 140, 20))
         self.presValue.setObjectName("presValue")
         self.presValue.setText(str(in_pres))
         
         self.intakeDiam = QtWidgets.QLabel(self.Inlet)
-        self.intakeDiam.setGeometry(QtCore.QRect(410, 70, 111, 16))
+        self.intakeDiam.setGeometry(QtCore.QRect(40, 250, 140, 20))
         self.intakeDiam.setObjectName("intakeDiam")
         
         self.diamValue = QtWidgets.QLineEdit(self.Inlet)
-        self.diamValue.setGeometry(QtCore.QRect(560, 70, 121, 20))
+        self.diamValue.setGeometry(QtCore.QRect(220, 250, 140, 20))
         self.diamValue.setObjectName("diamValue")
         self.diamValue.setText(str(in_diam))
 
-
         self.diffRatio = QtWidgets.QLabel(self.Inlet)
-        self.diffRatio.setGeometry(QtCore.QRect(410, 130, 121, 16))
+        self.diffRatio.setGeometry(QtCore.QRect(410, 70, 140, 20))
         self.diffRatio.setObjectName("diffRatio")
         
-        self.diffRatioValue = QtWidgets.QLineEdit(self.Inlet)
-        self.diffRatioValue.setGeometry(QtCore.QRect(560, 130, 121, 20))
-        self.diffRatioValue.setObjectName("diffRatioValue")
-        self.diffRatioValue.setText(str(in_area_ratio))
+        self.diffRatioControl = QtWidgets.QSlider(self.Inlet)
+        self.diffRatioControl.setGeometry(QtCore.QRect(410, 130, 140, 160))
+        self.diffRatioControl.setObjectName("diffRatioControl")
+        self.diffRatioControl.setOrientation(QtCore.Qt.Vertical)
+        self.diffRatioControl.setRange(1,10)
+        self.diffRatioControl.setValue(in_area_ratio)
+        self.diffRatioControl.setTickPosition(QtWidgets.QSlider.TicksRight)
+        self.diffRatioControl.setTickInterval(1)
+        
+        self.diffRatioControl.valueChanged.connect(self.changeDiffuser)
+
+        self.diffValue = QtWidgets.QLCDNumber(self.Inlet)
+        self.diffValue.setGeometry(QtCore.QRect(420, 340, 80, 30))
+        self.diffValue.setObjectName("diffValue")
+        self.diffValue.display(in_area_ratio)
+
 
         self.nozzleRatio = QtWidgets.QLabel(self.Inlet)
-        self.nozzleRatio.setGeometry(QtCore.QRect(320, 250, 121, 16))
+        self.nozzleRatio.setGeometry(QtCore.QRect(560, 70, 140, 20))
         self.nozzleRatio.setObjectName("nozzleRatio")
         
+        
         self.nozzleControl = QtWidgets.QSlider(self.Inlet)
-        self.nozzleControl.setGeometry(QtCore.QRect(300, 290, 160, 22))
-        self.nozzleControl.setOrientation(QtCore.Qt.Horizontal)
+        self.nozzleControl.setGeometry(QtCore.QRect(560, 130, 140, 160))
+        self.nozzleControl.setOrientation(QtCore.Qt.Vertical)
         self.nozzleControl.setObjectName("nozzleControl")
-        
+        self.nozzleControl.setTickPosition(QtWidgets.QSlider.TicksRight)
+        self.nozzleControl.setTickInterval(1)
         self.nozzleControl.setRange(1,10)
+        self.nozzleControl.setValue(noz_area_ratio)
         self.nozzleControl.valueChanged.connect(self.changeNozzle)
-
-        self.nozzleValue = QtWidgets.QLCDNumber(self.Inlet)
-        self.nozzleValue.setGeometry(QtCore.QRect(490, 290, 64, 23))
-        self.nozzleValue.setObjectName("nozzleValue")
         
+        
+        self.nozzleValue = QtWidgets.QLCDNumber(self.Inlet)
+        self.nozzleValue.setGeometry(QtCore.QRect(570, 340, 80, 30))
+        self.nozzleValue.setObjectName("nozzleValue")
+        self.nozzleValue.display(noz_area_ratio)
+
         self.tabWidget.addTab(self.Inlet, "")
         self.Compressor = QtWidgets.QWidget()
         self.Compressor.setObjectName("Compressor")
         
         self.compPresRatio = QtWidgets.QLabel(self.Compressor)
-        self.compPresRatio.setGeometry(QtCore.QRect(60, 40, 251, 16))
+        self.compPresRatio.setGeometry(QtCore.QRect(60, 40, 220, 20))
         self.compPresRatio.setObjectName("compPresRatio")
 
         
         self.compControl = QtWidgets.QSlider(self.Compressor)
-        self.compControl.setGeometry(QtCore.QRect(60, 90, 160, 22))
+        self.compControl.setGeometry(QtCore.QRect(60, 90, 160, 20))
         self.compControl.setOrientation(QtCore.Qt.Horizontal)
         self.compControl.setObjectName("compControl")
-        self.compControl.setRange(1, 50)
+        self.compControl.setRange(1, 40)
+        self.compControl.setValue(comp_pres_ratio)
         self.compControl.valueChanged.connect(self.changeComp)
 
 
         self.compPresValue = QtWidgets.QLCDNumber(self.Compressor)
-        self.compPresValue.setGeometry(QtCore.QRect(260, 90, 64, 23))
+        self.compPresValue.setGeometry(QtCore.QRect(260, 90, 80, 30))
         self.compPresValue.setObjectName("compPresValue")
+        self.compPresValue.display(comp_pres_ratio)
         
         self.airFuelRatio = QtWidgets.QLabel(self.Compressor)
-        self.airFuelRatio.setGeometry(QtCore.QRect(510, 50, 141, 20))
+        self.airFuelRatio.setGeometry(QtCore.QRect(60, 260, 100, 20))
         self.airFuelRatio.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.airFuelRatio.setAlignment(QtCore.Qt.AlignCenter)
         self.airFuelRatio.setObjectName("airFuelRatio")
         
         self.AFRcontrol = QtWidgets.QSlider(self.Compressor)
-        self.AFRcontrol.setGeometry(QtCore.QRect(570, 90, 22, 160))
-        self.AFRcontrol.setOrientation(QtCore.Qt.Vertical)
+        self.AFRcontrol.setGeometry(QtCore.QRect(60, 310, 160, 20))
+        self.AFRcontrol.setOrientation(QtCore.Qt.Horizontal)
         self.AFRcontrol.setObjectName("AFRcontrol")
-        self.AFRcontrol.setRange(50,150)
+        self.AFRcontrol.setRange(25,100)
+        self.AFRcontrol.setValue(fuel_flow)
         self.AFRcontrol.valueChanged.connect(self.changeAFR)
         
         self.AFRdisplay = QtWidgets.QLCDNumber(self.Compressor)
-        self.AFRdisplay.setGeometry(QtCore.QRect(550, 270, 64, 23))
+        self.AFRdisplay.setGeometry(QtCore.QRect(260, 310, 80, 30))
         self.AFRdisplay.setObjectName("AFRdisplay")
-        self.AFRdisplay.display(150)
+        self.AFRdisplay.display(fuel_flow)
         
         self.turbPresRatio = QtWidgets.QLabel(self.Compressor)
-        self.turbPresRatio.setGeometry(QtCore.QRect(60, 160, 171, 16))
+        self.turbPresRatio.setGeometry(QtCore.QRect(60, 160, 180, 20))
         self.turbPresRatio.setObjectName("turbPresRatio")
         
         self.turbControl = QtWidgets.QSlider(self.Compressor)
-        self.turbControl.setGeometry(QtCore.QRect(60, 210, 160, 22))
+        self.turbControl.setGeometry(QtCore.QRect(60, 210, 160, 20))
         self.turbControl.setOrientation(QtCore.Qt.Horizontal)
         self.turbControl.setObjectName("turbControl")
-        self.turbControl.setRange(1,150)
+        self.turbControl.setRange(1,10)
+        self.turbControl.setValue(turb_pres_ratio)
         self.turbControl.valueChanged.connect(self.changeTurb)
 
 
         self.turbPresValue = QtWidgets.QLCDNumber(self.Compressor)
-        self.turbPresValue.setGeometry(QtCore.QRect(260, 210, 64, 23))
+        self.turbPresValue.setGeometry(QtCore.QRect(260, 210, 80, 30))
         self.turbPresValue.setObjectName("turbPresValue")
-        
+        self.turbPresValue.display(turb_pres_ratio)
+
         self.tabWidget.addTab(self.Compressor, "")
+        
+        self.Calculations = QtWidgets.QWidget()
+        self.Calculations.setObjectName("Calculations")
+        
+        self.table = QtWidgets.QTableWidget(self.Calculations)
+        self.table.setGeometry(QtCore.QRect(10,0,800,400))
+        self.table.setRowCount(41)
+        self.table.setColumnCount(2)
+        self.table.setColumnWidth(0, 400)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        
+        for row in range(12):
+            pass
+ #       for col in range(3):
+ #           item = QtWidgets.QTableWidgetItem(f"Item {row+1}-{col+1}")
+ #           self.table.setItem(row, col, item)
+
+
+
+        self.tabWidget.addTab(self.Calculations, "")
+        
+        
         self.Assumptions = QtWidgets.QWidget()
         self.Assumptions.setObjectName("Assumptions")
         
@@ -170,8 +224,12 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 769, 379))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        
+
+    
+
         self.tabWidget.addTab(self.Assumptions, "")
+        
+        
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -182,7 +240,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -198,12 +256,13 @@ class Ui_MainWindow(object):
         self.compPresRatio.setText(_translate("MainWindow", "Compressor Pressure Ratio 1:x"))
         self.airFuelRatio.setText(_translate("MainWindow", "Air Fuel Ratio x:1"))
         self.turbPresRatio.setText(_translate("MainWindow", "Turbine Pressure Ratio x:1"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Compressor), _translate("MainWindow", "Compressor"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Compressor), _translate("MainWindow", "Engine Specs"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Calculations), _translate("MainWindow", "Results"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Assumptions), _translate("MainWindow", "Assumptions"))
 
 
     def changeAFR(self, value):
-        self.AFRdisplay.display(200-value)
+        self.AFRdisplay.display(125-value)
 
 
     def changeComp(self, value):
@@ -212,8 +271,44 @@ class Ui_MainWindow(object):
     def changeTurb(self,value):
         self.turbPresValue.display(value)
     
+    def changeDiffuser(self,value):
+        self.diffValue.display(value)
+
     def changeNozzle(self,value):
         self.nozzleValue.display(value)
+
+    def pushed(self):
+        self.getVals()
+                    
+    def getVals(self):
+        v1 = float(self.velocityValue.text())
+        T1 = float(self.tempValue.text()) + 273
+        P1 = float(self.presValue.text()) * 1000
+        A1 = float(self.diamValue.text())**2 * math.pi /4
+        DRatio = float(self.diffRatioControl.value())
+        CPR = float(self.compPresValue.value()) 
+        AFR = float(125 - self.AFRcontrol.value())
+        TPR = 1/float(self.turbControl.value())
+        NRatio = float(self.nozzleControl.value())
+
+        self.Engine = Brayton(v1,T1,P1,A1,DRatio,CPR,AFR,TPR,NRatio)
+        self.Engine.work()
+        
+        
+        row = 0
+        for section in self.Engine.dictionary.items():
+            item = QtWidgets.QTableWidgetItem(f"{section[0]}")
+            self.table.setItem(row, 0, item)
+            row +=1
+            for value in section[1].items():
+                item1 = QtWidgets.QTableWidgetItem(f"{value[0]}")
+                self.table.setItem(row, 0, item1)
+                item2 = QtWidgets.QTableWidgetItem(f"{value[1]}")
+                self.table.setItem(row, 1, item2)
+                row += 1        
+
+
+    
 
 
 if __name__ == "__main__":
