@@ -38,6 +38,8 @@ class Ui_MainWindow(object):
 
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
+        MainWindow.setWindowIcon(QtGui.QIcon('Turbine.png'))
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         
@@ -277,24 +279,6 @@ class Ui_MainWindow(object):
         
         self.tabWidget.addTab(self.Calculations, "")
         
-        self.Assumptions = QtWidgets.QWidget()
-        self.Assumptions.setObjectName("Assumptions")
-        
-        self.scrollArea = QtWidgets.QScrollArea(self.Assumptions)
-        self.scrollArea.setGeometry(QtCore.QRect(10, 10, 771, 381))
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 769, 379))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-
-    
-
-        self.tabWidget.addTab(self.Assumptions, "")
-        
-        
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -310,7 +294,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Brayton Cycle Calculator"))
         self.inletVelocity.setText(_translate("MainWindow", "Air Velocity [m/s]"))
         self.ambientTemp.setText(_translate("MainWindow", "Ambient Temperature [°C]"))
         self.ambientPres.setText(_translate("MainWindow", "Ambient Pressure [kPa]"))
@@ -323,7 +307,6 @@ class Ui_MainWindow(object):
         self.turbPresRatio.setText(_translate("MainWindow", "Turbine Pressure Ratio x:1"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Compressor), _translate("MainWindow", "Engine Specs"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Calculations), _translate("MainWindow", "Results"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Assumptions), _translate("MainWindow", "Assumptions"))
 
 
     def changeAFR(self, value):
